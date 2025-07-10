@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import pagination
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_200_OK
 
 from jobapi.logic.job_application_logic import JobApplicationLogic
@@ -8,7 +9,7 @@ from jobapi.dao.job_dao import JobDao
 from jobapi.serializers.job_application_serializer import JobApplicationSerializer
 from jobapi.serializers.job_serializer import JobSerializer
 
-class JobApplicationController(APIView):
+class JobApplicationController(APIView, pagination.LimitOffsetPagination):
     permission_classes = [IsAuthenticated]
 
     def __init__(self, *args, **kwargs):
@@ -23,7 +24,8 @@ class JobApplicationController(APIView):
             applications = self.job_application_logic.get_all_job_applications(user)
             jobs = [app.job for app in applications]
 
-            serialized_data= JobSerializer(jobs, many=True)
+            paginated_data = self.paginate_queryset(jobs, request, view=self)
+            serialized_data= JobSerializer(paginated_data, many=True)
             return Response(serialized_data.data, HTTP_200_OK)
 
         except Exception as e:

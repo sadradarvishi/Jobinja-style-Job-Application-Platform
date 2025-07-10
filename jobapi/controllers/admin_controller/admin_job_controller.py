@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import pagination
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_201_CREATED
 
 
@@ -9,7 +10,7 @@ from jobapi.logic.admin_logic.admin_job_logic import AdminJobLogic
 from jobapi.permission import IsAdminUser
 
 
-class AdminJobController(APIView):
+class AdminJobController(APIView, pagination.LimitOffsetPagination):
     permission_classes = [IsAdminUser]
 
     def __init__(self, *args, **kwargs):
@@ -36,21 +37,25 @@ class AdminJobController(APIView):
 
             if company_name and title:
                 jobs = self.admin_job_logic.query_by_company_and_title(company_name, title)
-                serialized_data = JobSerializer(jobs, many=True)
+                paginated_data = self.paginate_queryset(jobs, request, view=self)
+                serialized_data = JobSerializer(paginated_data, many=True)
                 return Response(serialized_data.data, HTTP_200_OK)
 
             if company_name:
                 data = self.admin_job_logic.query_by_company_name(company_name)
-                serialized_data = JobSerializer(data, many=True)
+                paginated_data = self.paginate_queryset(data, request, view=self)
+                serialized_data = JobSerializer(paginated_data, many=True)
                 return Response(serialized_data.data, HTTP_200_OK)
 
             if title:
                 data = self.admin_job_logic.query_by_title(title)
-                serialized_data = JobSerializer(data, many=True)
+                paginated_data = self.paginate_queryset(data, request, view=self)
+                serialized_data = JobSerializer(paginated_data, many=True)
                 return Response(serialized_data.data, HTTP_200_OK)
 
             data = self.job_dao.get_all_jobs()
-            serialized_data = JobSerializer(data, many=True)
+            paginated_data = self.paginate_queryset(data, request, view=self)
+            serialized_data = JobSerializer(paginated_data, many=True)
             return Response(serialized_data.data, HTTP_200_OK)
 
         except Exception as e:
