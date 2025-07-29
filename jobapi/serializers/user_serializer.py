@@ -6,10 +6,12 @@ class UserSerializer(ModelSerializer):
         model = UserEntity
         fields = ['first_name',
                   'last_name',
+                  'picture',
                   'username',
                   'email',
                   'phone_number',
                   'experience',
+                  'resume',
                   'education'
         ]
         extra_kwargs = {

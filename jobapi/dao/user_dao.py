@@ -1,6 +1,8 @@
 from jobapi.entity.user_entity import UserEntity
 
 from typing import Optional
+from django.core.files.uploadedfile import UploadedFile
+from django.db.models import ImageField
 
 class UserDao:
 
@@ -14,20 +16,24 @@ class UserDao:
             self,
             first_name,
             last_name,
+            picture: Optional[ImageField],
             username,
             password,
             email,
             experience,
+            resume: Optional[UploadedFile],
             phone_number,
             education
     ):
         return UserEntity.objects.create(
             first_name=first_name,
             last_name=last_name,
+            picture=picture,
             username=username,
             password=password,
             email=email,
             experience=experience,
+            resume=resume,
             phone_number=phone_number,
             education=education
         )

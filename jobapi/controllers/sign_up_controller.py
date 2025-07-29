@@ -13,6 +13,11 @@ class SignUpController(APIView):
     def post(self, request):
         try:
             data = request.data
+            picture = data.get('picture')
+
+            if not picture.name.lower().endswith('.jpg'):
+                return Response("please upload valid .jpg file", HTTP_400_BAD_REQUEST)
+
             self.sign_up_logic.sign_up(data)
             return Response(None, HTTP_201_CREATED)
 
