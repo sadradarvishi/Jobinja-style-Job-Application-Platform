@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_201_CREATED
 
 from jobapi.logic.register_logic import RegisterLogic
+from jobapi.tasks import send_email
 
 class RegisterController(APIView):
 
@@ -27,6 +28,8 @@ class RegisterController(APIView):
                 return Response({'error': 'password is incorrect'}, HTTP_400_BAD_REQUEST)
 
             tokens = self.register_logic.generate_tokens(username)
+
+            send_email.delay(username)
 
             return Response(tokens, HTTP_201_CREATED)
 
